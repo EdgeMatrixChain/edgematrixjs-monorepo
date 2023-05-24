@@ -1,0 +1,35 @@
+{
+  "name": "@edgematrixjs/tx",
+  "version": "1.0.1",
+  "description": "edgematrixjs tx",
+  "author": "jiw",
+  "license": "ISC",
+  "keywords": [
+    "edgematrixjs"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "build": "../../config/cli/ts-build.sh",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:browser": "karma start karma.conf.js",
+    "test:node": "tape -r ts-node/register -- 'test/**/*.spec.ts'",
+    "publish": "npm publish --access=public"
+  },
+  "dependencies": {
+    "@edgematrixjs/util": "^1.0.0",
+    "ethereum-cryptography": "^1.2.0"
+  },
+  "devDependencies": {
+    "@edgematrixjs/http": "^1.0.0"
+  }
+}

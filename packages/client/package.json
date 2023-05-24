@@ -1,0 +1,36 @@
+{
+  "name": "@edgematrixjs/client",
+  "version": "0.0.2",
+  "description": "edgematrixjs rtc",
+  "keywords": [
+    "edgematrixjs"
+  ],
+  "author": "jiw",
+  "license": "ISC",
+  "main": "dist/lib/index.js",
+  "browser": "dist/bundle.js",
+  "types": "dist/lib/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "../../config/cli/ts-build.sh",
+    "build:browser": "../../config/cli/ts-build.sh browser && npm run bundle && rm -rf dist.browser",
+    "bundle": "webpack",
+    "publish": "npm publish --access=public"
+  },
+  "dependencies": {
+    "@edgematrixjs/http": "^1.0.0",
+    "@edgematrixjs/rtc": "^1.0.0",
+    "@edgematrixjs/socket": "^1.0.0",
+    "@edgematrixjs/tx": "^1.0.0",
+    "@edgematrixjs/util": "^1.0.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.55.1",
+    "webpack-cli": "^4.8.0"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}

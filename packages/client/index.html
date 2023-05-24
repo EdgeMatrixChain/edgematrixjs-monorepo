@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Test</title>
+  </head>
+  <body>
+    <div id="app">Test</div>
+    <script src="dist/bundle.js"></script>
+    <script>
+      const privateKey = '0xb22be9c19b61adc1d8e89a1dae0346ed274ac9fa239c06286910c29f9fee59d3';
+      const subject = '0x8eeb338239ada22d81ffb7adc995fe31a4d1dc2d701bc8a58fffe5b53e14281e';
+      const network = '3.145.214.36:40012';
+      window.onload = function () {
+        const Http = edgematrixjs.Http;
+        const RTC = edgematrixjs.RTC;
+        const ws = new edgematrixjs.EmSocket({ url: `ws://${network}/edge_ws` });
+        //set open listener
+        ws.setOpenListener((event) => {
+          const rtc = new RTC();
+          const subscribe = { subject: subject, application: 'edge_chat', content: 'subject', chainId: 2 };
+
+          rtc.subscribe(subscribe, privateKey, ws).then((resp) => {
+            //send message
+            const http = new Http({ baseURL: `http://${network}` });
+            const messageContent = { data: 'hello' };
+            const message = {
+              subject: subject,
+              application: 'edge_chat',
+              chainId: 2,
+              content: JSON.stringify(messageContent),
+            };
+            rtc.sendMessage(message, privateKey, http);
+          });
+        });
+
+        //set message listener
+        ws.addMessageListener((event) => {
+          const data = JSON.parse(event.data) || {};
+          const params = data.params || {};
+          const result = params.result || {};
+          const from = result.From;
+          const type = result.Type;
+          let content = { data: '' };
+          try {
+            content = JSON.parse(result.Content);
+          } catch (e) {}
+          console.info(`recerved message `, content);
+        });
+        //connect socket
+        ws.connect();
+      };
+    </script>
+    <!-- built files will be auto injected -->
+  </body>
+</html>
