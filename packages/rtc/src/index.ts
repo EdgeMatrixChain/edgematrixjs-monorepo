@@ -56,7 +56,7 @@ export class RTC {
   }
 
   /**
-   * subscribe subject
+   * Subscribe subject
    * @param {String} {subject:'',content:''}
    */
   subscribe(params: SubscribeParams, privateKey: string, emSocket: EmSocket): Promise<CreateSubjectResp> {
@@ -115,7 +115,7 @@ export class RTC {
   }
 
   /**
-   * send message with socket
+   * Send message with socket
    * @deprecated
    * @param {String} {subject:'',content:''}
    */
@@ -141,12 +141,12 @@ export class RTC {
   }
 
   /**
-   * create subject
+   * Create subject
    * @param {String} privateKey
    * @return {Promise}
    */
   async createSubject(chainId: number, privateKey: string, http: Http): Promise<any> {
-    const nonceResp = await this.getTelegramCount(chainId, privateKey, http);
+    const nonceResp = await this.getTelegramCount(privateKey, http);
     const nonce = nonceResp.data;
     if (!nonce) {
       return { _result: 1, _desc: 'edge_getTelegramCount: nonce is none' };
@@ -166,10 +166,13 @@ export class RTC {
     }
     const serialized = signed.serialize();
     const data = addHexPrefix(serialized.toString('hex'));
-    const teleResp = await http.postJSON({
+    const teleResponse = await http.postJSON({
       data: this._formatRawParams({ params: [data], id: 1, method: 'edge_sendRawTelegram' }),
     });
-    const teleResult = JSON.parse(teleResp ? teleResp.result || '{}' : '{}');
+    let teleResult = { telegram_hash: '' };
+    try {
+      teleResult = JSON.parse(teleResponse.data?.result);
+    } catch (e) {}
     const teleHash = teleResult.telegram_hash;
     if (!teleHash) {
       return { _result: 1, _desc: 'create subject: telegram_hash is none' };
@@ -201,29 +204,34 @@ export class RTC {
     return this.createSubject(chainId, privateKey, http);
   }
 
-  async getTelegramCount(chainId: number, privateKey: string, http: Http) {
+  async getTelegramCount(privateKey: string, http: Http) {
     const address = addressWith(privateKey);
-    const nonceResp = await http.postJSON({
+    const nonceResponse = await http.postJSON({
       data: this._formatRawParams({ params: [address], id: 1, method: 'edge_getTelegramCount' }),
     });
-    const nonce = nonceResp.result;
+    const nonce = nonceResponse.data?.result;
     if (!nonce) {
       return { _result: 1, _desc: 'edge_getTelegramCount: nonce is none' };
     } else {
-      return { _result: 1, data: nonce };
+      return { _result: 0, data: nonce };
     }
   }
 
+  /**
+   * query
+   * @param hash
+   * @param http
+   * @returns
+   */
   async getTelegramReceipt(hash: string, http: Http): Promise<any> {
-    const resp = await http.postJSON({
+    const response = await http.postJSON({
       data: this._formatRawParams({ method: 'edge_getTelegramReceipt', params: [hash], id: 1 }),
     });
-    resp.result = resp.result || {};
-    const { status } = resp.result;
-    if (status !== '0x1') {
+    const result = response.data?.result || {};
+    if (result.status !== '0x1') {
       return { _result: 1, hash, _desc: '' };
     } else {
-      return { _result: 0, hash, data: resp.result };
+      return { _result: 0, hash, data: result };
     }
   }
 
@@ -234,7 +242,7 @@ export class RTC {
    * @param http
    * @returns
    */
-  sendMessage(messageParams: MessageParams, privateKey: string, http: Http) {
+  async sendMessage(messageParams: MessageParams, privateKey: string, http: Http) {
     const { subject, content, to, application, chainId } = messageParams;
     if (!subject) {
       throw new Error('subject not be none');
@@ -255,6 +263,14 @@ export class RTC {
     }
     const serialized = signed.serialize();
     const data = addHexPrefix(serialized.toString('hex'));
-    return http.postJSON({ data: this._formatRawParams({ params: [data], id: 1, method: 'edge_sendRawMsg' }) });
+    const response = await http.postJSON({
+      data: this._formatRawParams({ params: [data], id: 1, method: 'edge_sendRawMsg' }),
+    });
+    const resp = response.data || { result: '' };
+    // return "result" property is covert last version
+    if (resp.result === '0x0') {
+      return { _result: 1, ...resp };
+    }
+    return { _result: 0, ...resp };
   }
 }

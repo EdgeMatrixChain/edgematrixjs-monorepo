@@ -1,8 +1,0 @@
-export enum HTTP_METHOD {
-  GET,
-  POST,
-  POST_JSON,
-  POST_FORMDATA,
-  DELETE,
-  PUT,
-}
