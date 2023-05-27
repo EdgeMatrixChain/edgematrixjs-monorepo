@@ -1,6 +1,6 @@
 {
   "name": "@edgematrixjs/util",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "edgematrixjs util",
   "author": "jiw",
   "license": "MPL-2.0",
@@ -14,8 +14,6 @@
     "src"
   ],
   "directories": {
-    "doc": "docs",
-    "example": "examples",
     "test": "test"
   },
   "scripts": {

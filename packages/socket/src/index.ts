@@ -1,6 +1,6 @@
 type EmSocketConfig = {
   url: string;
-  debug: false;
+  debug?: false;
 };
 
 function getWebSocket() {
@@ -85,7 +85,7 @@ export class EmSocket {
     return this;
   }
 
-  getclient(): any {
+  getClient(): any {
     return this.client;
   }
 

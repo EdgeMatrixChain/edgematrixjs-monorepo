@@ -1,5 +1,20 @@
-import * as tape from 'tape';
-import { EmSocket } from '../src';
+# @edgematrixjs/socket
+
+This project simple wrapper around `WebSocket`;
+
+To provide methods `send,addMessageListener,removeMessageListener` for the `@edgematrixjs/rtc` library;
+
+You can follow this project and to custom wrapper.
+
+## INSTALL
+
+`npm install @edgematrixjs/socket`
+
+## USAGE IN `RTC`
+
+```typescript
+import { EmSocket } from '@edgematrixjs/socket';
+import { RTC } from '@edgematrixjs/rtc';
 
 type CallbackOptions = {
   action: 'OPEN' | 'ERROR' | 'CLOSE' | 'MESSAGE';
@@ -59,11 +74,42 @@ async function initConnect() {
   return _result === 0 ? emSocket : null;
 }
 
-tape('EmSocket', function (t) {
-  t.test('emSocket.connect()', async function (st) {
-    const emSocket = await initConnect();
-    emSocket && emSocket.close();
-    st.isNotEqual(emSocket, null, 'connect is success');
-    st.end();
-  });
-});
+async function subscribeSubject() {
+  const emSocket = initConnect();
+  if (!emSocket) return;
+  const rtc = new RTC({ debug: false });
+  const subscribeParams = { subject: '{subject}', application: '{application}', content: '{content}', chainId: 2 };
+  const privateKey = '{privatekey}';
+  const { _result: subscribeResult } = rtc.subscribe(subscribeParams, privateKey, emSocket);
+}
+
+subscribeSubject();
+```
+
+## METHODS
+
+`constructor(config?: EmSocketConfig)`
+
+`setOpenListener(fn: Function)` Sets the open listener function.
+
+`removeOpenListener()` Removes the open listener.
+
+`setCloseListener(fn: Function)` Sets the close listener function.
+
+`removeCloseListener()` Removes the close listener.
+
+`setErrorListener(fn: Function)` Sets the error listener function.
+
+`removeErrorListener()` Removes the error listener.
+
+`addMessageListener(fn: Function)` Adds a message listener function.
+
+`removeMessageListener(fn: Function)` Removes a message listener function.
+
+`getClient()` Returns the client.
+
+`send(data: string)` Sends data to the server.
+
+`close()` Closes the connection.
+
+`connect(config?: EmSocketConfig)` Connects to the server.

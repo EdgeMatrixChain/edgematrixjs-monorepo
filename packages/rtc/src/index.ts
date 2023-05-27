@@ -4,7 +4,7 @@ import { EmSocket } from '@edgematrixjs/socket';
 import { Http } from '@edgematrixjs/http';
 
 type RTCConfig = {
-  debug: boolean;
+  debug?: boolean;
 };
 
 type RTCParams = {
@@ -50,9 +50,9 @@ export class RTC {
     };
   }
 
-  _sendRaw(rtcParams: RTCParams, ws: EmSocket) {
+  _sendRaw(rtcParams: RTCParams, emSocket: EmSocket) {
     const params = this._formatRawParams(rtcParams);
-    ws.send(JSON.stringify(params));
+    emSocket.send(JSON.stringify(params));
   }
 
   /**
@@ -119,7 +119,7 @@ export class RTC {
    * @deprecated
    * @param {String} {subject:'',content:''}
    */
-  sendSocketMessage(params: SubscribeParams, privateKey: string, ws: EmSocket) {
+  sendSocketMessage(params: SubscribeParams, privateKey: string, emSocket: EmSocket) {
     const { subject, content, application, chainId } = params;
     if (!subject) {
       throw new Error('subject not be none');
@@ -137,7 +137,7 @@ export class RTC {
     const signed = transaction.sign(hexToBuffer(privateKey));
     const serialized = signed.serialize();
     const data = addHexPrefix(serialized.toString('hex'));
-    this._sendRaw({ params: [data], id: 1, method: 'edge_sendRawMsg' }, ws);
+    this._sendRaw({ params: [data], id: 1, method: 'edge_sendRawMsg' }, emSocket);
   }
 
   /**
