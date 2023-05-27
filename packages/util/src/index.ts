@@ -3,11 +3,6 @@ import { RLP } from '@ethereumjs/rlp';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 import { random } from './random-bytes';
 
-// import { Buffer } from 'buffer';
-// (function (global) {
-//   if (global && !global.Buffer) global.Buffer = Buffer;
-// })(window);
-
 export function bufferToBigInt(buffer: Buffer) {
   const hex = ETHUtils.bufferToHex(buffer);
   if (hex === '0x') {
@@ -59,9 +54,10 @@ export function addressWith(privateKey: string) {
   return ETHUtils.addHexPrefix(buf.toString('hex'));
 }
 
+export { keccak256 } from 'ethereum-cryptography/keccak';
+
 export * from '@ethereumjs/util';
 
 export const rlp = RLP;
 
 export const randomBytes = random;
-

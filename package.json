@@ -5,7 +5,7 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces",
-    "publish": "npm run publish --workspaces"
+    "publishs": "npm run publish:npm --workspaces"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",

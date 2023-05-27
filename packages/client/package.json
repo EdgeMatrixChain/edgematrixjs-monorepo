@@ -17,7 +17,7 @@
     "build": "../../config/cli/ts-build.sh",
     "build:browser": "../../config/cli/ts-build.sh browser && npm run bundle && rm -rf dist.browser",
     "bundle": "webpack",
-    "publish": "npm publish --access=public"
+    "publish:npm": "npm publish --access=public"
   },
   "dependencies": {
     "@edgematrixjs/http": "^1.0.0",
