@@ -1,5 +1,7 @@
 # EdgeMatrix JS Monorepo
 
+This is project reference `ethereumjs-monorepo`
+
 ## Packages
 
 | package                        | npm                       | keywords                                         |
