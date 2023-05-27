@@ -1,6 +1,6 @@
 {
   "name": "@edgematrixjs/tx",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "edgematrixjs tx",
   "author": "jiw",
   "license": "MPL-2.0",
@@ -14,8 +14,6 @@
     "src"
   ],
   "directories": {
-    "doc": "docs",
-    "example": "examples",
     "test": "test"
   },
   "scripts": {
@@ -26,10 +24,6 @@
     "publish:npm": "npm publish --access=public"
   },
   "dependencies": {
-    "@edgematrixjs/util": "^1.0.0",
-    "ethereum-cryptography": "^1.2.0"
-  },
-  "devDependencies": {
-    "@edgematrixjs/http": "^1.0.0"
+    "@edgematrixjs/util": "^1.0.0"
   }
 }

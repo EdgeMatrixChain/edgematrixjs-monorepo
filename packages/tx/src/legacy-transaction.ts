@@ -1,4 +1,18 @@
-import { Address, toBuffer, addHexPrefix, bufferToBigInt, bigIntToBuffer, unpadBuffer, bigIntToUnpaddedBuffer, bufArrToArr, rlp, keccak256hex, ecsign, bigIntToHex, BigIntLike } from '@edgematrixjs/util';
+import {
+  Address,
+  toBuffer,
+  addHexPrefix,
+  bufferToBigInt,
+  bigIntToBuffer,
+  unpadBuffer,
+  bigIntToUnpaddedBuffer,
+  bufArrToArr,
+  rlp,
+  keccak256hex,
+  ecsign,
+  bigIntToHex,
+  BigIntLike,
+} from '@edgematrixjs/util';
 import { LegacyTxData } from './types';
 
 export class LegacyTransaction {
