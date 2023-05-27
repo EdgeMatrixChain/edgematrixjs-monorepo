@@ -6,7 +6,7 @@
     "edgematrixjs"
   ],
   "author": "jiw",
-  "license": "ISC",
+  "license": "MPL-2.0",
   "main": "dist/lib/index.js",
   "browser": "dist/bundle.js",
   "types": "dist/lib/index.d.ts",

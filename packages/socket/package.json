@@ -3,7 +3,7 @@
   "version": "1.0.2",
   "description": "edgematrixjs socket",
   "author": "jiw",
-  "license": "ISC",
+  "license": "MPL-2.0",
   "keywords": [
     "edgematrixjs"
   ],
