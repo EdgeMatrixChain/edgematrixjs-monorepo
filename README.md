@@ -2,14 +2,14 @@
 
 ## Packages
 
-| package                        | npm                       |
-| ------------------------------ | ------------------------- |
-| [@edgematrixjs/util][util]     | [npm package][npm-util]   |
-| [@edgematrixjs/tx][tx]         | [npm package][npm-tx]     |
-| [@edgematrixjs/socket][socket] | [npm package][npm-socket] |
-| [@edgematrixjs/rtc][rtc]       | [npm package][npm-rtc]    |
-| [@edgematrixjs/http][http]     | [npm package][npm-http]   |
-| [@edgematrixjs/client][client] | [npm package][npm-client] |
+| package                        | npm                       | keywords                                         |
+| ------------------------------ | ------------------------- | ------------------------------------------------ |
+| [@edgematrixjs/util][util]     | [npm package][npm-util]   | `utility` `create private key`                   |
+| [@edgematrixjs/tx][tx]         | [npm package][npm-tx]     | `rlp encode` `keccak256 sign `                   |
+| [@edgematrixjs/socket][socket] | [npm package][npm-socket] | `websocket`                                      |
+| [@edgematrixjs/http][http]     | [npm package][npm-http]   | `http`                                           |
+| [@edgematrixjs/rtc][rtc]       | [npm package][npm-rtc]    | `create subject` `scribe subject` `send message` |
+| [@edgematrixjs/client][client] | [npm package][npm-client] | `edgematrixjs for browser`                       |
 
 [npm-util]: https://www.npmjs.com/package/@edgematrixjs/util
 [npm-tx]: https://www.npmjs.com/package/@edgematrixjs/tx

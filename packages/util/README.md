@@ -18,7 +18,7 @@ export const rlp = RLP;
 
 ## INSTALL
 
-`npm install @edgematrixjs/util`
+`npm install --save @edgematrixjs/util`
 
 ## USAGE
 

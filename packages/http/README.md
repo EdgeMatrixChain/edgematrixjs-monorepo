@@ -12,7 +12,7 @@ Provide `postJSON` methods for `@edgematrixjs/rtc`
 
 ## INSTALL
 
-`npm install @edgematrixjs/http`
+`npm install --save @edgematrixjs/http`
 
 ## USAGE IN RTC
 

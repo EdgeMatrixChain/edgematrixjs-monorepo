@@ -8,7 +8,7 @@ You can follow this project and to custom wrapper.
 
 ## INSTALL
 
-`npm install @edgematrixjs/socket`
+`npm install --save @edgematrixjs/socket`
 
 ## USAGE IN `RTC`
 

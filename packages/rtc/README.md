@@ -10,13 +10,26 @@ For WebSocket communication, it relies on "@edgematrixjs/socket." You can also u
 
 ## Install
 
-`npm install @edgematrixjs/rtc`
+`npm install --save @edgematrixjs/rtc`
+
+## Dependencies
+
+```json
+{
+  "@edgematrixjs/tx": "^1.0.0",
+  "@edgematrixjs/util": "^1.0.0",
+  "@edgematrixjs/http": "^1.0.0",
+  "@edgematrixjs/socket": "^1.0.0"
+}
+```
 
 ## Example
 
 #### Create Subject
 
 ```typescript
+import { Http } from '@edgematrixjs/http';
+import { RTC } from '@edgematrixjs/rtc';
 const chatId = 2;
 const privateKey = '';
 const httpsUrl = 'https://oregon.edgematrix.xyz';
@@ -29,6 +42,8 @@ const { _result, hash } = await rtc.createSubject(chainId, privateKey, emHttp);
 #### Subscribe Subject
 
 ```typescript
+import { EmSocket } from '@edgematrixjs/socket';
+import { RTC } from '@edgematrixjs/rtc';
 //connect method implement follow in test/index.spec.ts
 const wssUrl = 'wss://oregon.edgematrix.xyz/edge_ws';
 const handleAction = ({ action, event }) => {};
@@ -49,6 +64,8 @@ const { _result } = await rtc.subscribe(params, privateKey, emSocket);
 #### Send Message
 
 ```typescript
+import { Http } from '@edgematrixjs/http';
+import { RTC } from '@edgematrixjs/rtc';
 const httpsUrl = 'https://oregon.edgematrix.xyz';
 const emHttp = new Http({ baseURL: httpsUrl });
 const rtc = new RTC();

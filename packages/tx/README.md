@@ -16,7 +16,7 @@ Before you start, it is recommended to run the test.
 
 ## Install
 
-`npm install @edgematrixjs/tx`
+`npm install --save @edgematrixjs/tx`
 
 ## Test
 
