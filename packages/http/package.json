@@ -14,8 +14,6 @@
     "src"
   ],
   "directories": {
-    "doc": "docs",
-    "example": "examples",
     "test": "test"
   },
   "scripts": {

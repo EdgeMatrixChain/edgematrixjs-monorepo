@@ -1,39 +1,25 @@
 import { AxiosResponse, AxiosRequestConfig, Axios } from 'axios';
-import { HTTP_METHOD } from './types';
 
-function FormData() {
-  if (typeof window !== 'undefined' && window.FormData) {
-    return window.FormData;
-  } else {
-    return require('form-data');
-  }
+export enum HTTP_METHOD {
+  GET,
+  POST,
+  POST_JSON,
 }
 
 export class Http {
-  public client?: Axios;
+  public client: Axios;
 
   constructor(config?: AxiosRequestConfig) {
     const opt = config || {};
     opt.timeout = opt.timeout || 600000;
     this.client = new Axios(opt);
-    this.client?.interceptors.response.use(
+    this.client.interceptors.response.use(
       (response) => response,
       (error) => error.response || {}
     );
   }
 
   _formatOptions(method: HTTP_METHOD, options: AxiosRequestConfig) {
-    if (typeof options.data === 'object' && !(options.data instanceof FormData())) {
-      const newData: any = {};
-      Object.keys(options.data).forEach((key) => {
-        if (options.data[key] !== void 0) {
-          newData[key] = options.data[key];
-        } else {
-          console.info(`remove undefined attr:${key}`);
-        }
-      });
-      options.data = newData;
-    }
     if (method === HTTP_METHOD.GET) {
       options.method = 'GET';
       if (options.data) {
@@ -56,67 +42,39 @@ export class Http {
       options.method = 'POST';
       options.headers = { 'content-type': 'application/json' };
       options.data = typeof options.data === 'string' ? options.data : JSON.stringify(options.data);
-    } else if (method === HTTP_METHOD.POST_FORMDATA) {
-      options.method = 'POST';
-      options.headers = { 'content-type': 'multipart/form-data' };
-    } else if (method === HTTP_METHOD.DELETE) {
-      options.method = 'DELETE';
-      options.headers = { 'content-type': 'application/json' };
-    } else if (method === HTTP_METHOD.PUT) {
-      options.method = 'PUT';
-      options.headers = { 'content-type': 'application/json' };
     }
     return options;
   }
 
   _handler() {
     return (response: AxiosResponse) => {
-      if (response.status === 0) {
-        return response.data || { __status: response.status };
+      if (!response || !response.status) {
+        return response;
       }
-      if (typeof response.data === 'string') {
-        console.info('response.data is string');
+      const contentType = response.headers ? response.headers['content-type'] : '';
+      if (contentType === 'application/json' && typeof response.data === 'string') {
         try {
-          const data = JSON.parse(response.data);
-          data.__status = response.status;
-          return data;
+          response.data = JSON.parse(response.data);
         } catch (e) {
-          return { data: response.data, __status: response.status };
+          //try parse json with response.data failed
         }
       }
-      const data = response.data || {};
-      data.__status = response.status;
-      return data;
+      return response;
     };
   }
 
   get(options: AxiosRequestConfig) {
     const _opt = this._formatOptions(HTTP_METHOD.GET, options);
-    return this.client?.request(_opt).then(this._handler());
+    return this.client.request(_opt).then(this._handler());
   }
 
   post(options: AxiosRequestConfig) {
     const _opt = this._formatOptions(HTTP_METHOD.POST, options);
-    return this.client?.request(_opt).then(this._handler());
-  }
-
-  postFormData(options: AxiosRequestConfig) {
-    const _opt = this._formatOptions(HTTP_METHOD.POST_FORMDATA, options);
-    return this.client?.request(_opt).then(this._handler());
+    return this.client.request(_opt).then(this._handler());
   }
 
   postJSON(options: AxiosRequestConfig) {
     const _opt = this._formatOptions(HTTP_METHOD.POST_JSON, options);
-    return this.client?.request(_opt).then(this._handler());
-  }
-
-  delete(options: AxiosRequestConfig) {
-    const _opt = this._formatOptions(HTTP_METHOD.DELETE, options);
-    return this.client?.request(_opt).then(this._handler());
-  }
-
-  put(options: AxiosRequestConfig) {
-    const _opt = this._formatOptions(HTTP_METHOD.PUT, options);
-    return this.client?.request(_opt).then(this._handler());
+    return this.client.request(_opt).then(this._handler());
   }
 }
