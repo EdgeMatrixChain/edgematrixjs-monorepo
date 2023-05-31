@@ -190,7 +190,7 @@ tape('rtc', function (t) {
             console.info('igonre message, because [event.data.params] is empty!', event.data);
             return;
           }
-          
+
           let type: MESSAGE_ORDINARY | MESSAGE_SUBCRIBE | undefined = eventData?.params?.result?.Type;
           let from = eventData?.params?.result?.From || '';
           let to = eventData?.params?.result?.To || '';

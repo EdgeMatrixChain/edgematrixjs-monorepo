@@ -34,6 +34,35 @@ type CreateSubjectResp = {
   data?: any;
 };
 
+type NodeParameters = {
+  chainId: number;
+  nodeId: string;
+  path?: string;
+  method?: string;
+  headers?: any[];
+  body?: any;
+};
+
+interface TelegramParameters {
+  chainId: number;
+  nodeId: string;
+  endpoint: string;
+  input?: any;
+}
+
+type RawTelegramParameters = {
+  chainId: number;
+  to: string;
+  nonce: string;
+  data: any;
+};
+
+type RawTelegramResponse = {
+  _result: number;
+  _desc?: string;
+  data?: any;
+};
+
 export class RTC {
   public debug = false;
 
@@ -151,24 +180,9 @@ export class RTC {
     if (!nonce) {
       return { _result: 1, _desc: 'edge_getTelegramCount: nonce is none' };
     }
-    const transaction = new LegacyTransaction({
-      nonce: nonce,
-      gasPrice: '0x0',
-      gasLimit: '0x0',
-      to: '0x0000000000000000000000000000000000003101',
-      value: '0x0',
-      data: '0x333435',
-      chainId: chainId,
-    });
-    const signed = transaction.sign(hexToBuffer(privateKey));
-    if (this.debug) {
-      console.info(`create subject signed to json--->\n${JSON.stringify(signed.toJSON())}`);
-    }
-    const serialized = signed.serialize();
-    const data = addHexPrefix(serialized.toString('hex'));
-    const teleResponse = await http.postJSON({
-      data: this._formatRawParams({ params: [data], id: 1, method: 'edge_sendRawTelegram' }),
-    });
+    const to = '0x0000000000000000000000000000000000003101';
+    const data = '0x0';
+    const teleResponse = await this.sendRawTelegram({ chainId, to, nonce, data }, privateKey, http);
     let teleResult = { telegram_hash: '' };
     try {
       teleResult = JSON.parse(teleResponse.data?.result);
@@ -193,7 +207,7 @@ export class RTC {
   }
 
   /**
-   * create channel(subject)
+   * Create channel(subject)
    * @deprecated
    * @param chainId
    * @param privateKey
@@ -204,10 +218,138 @@ export class RTC {
     return this.createSubject(chainId, privateKey, http);
   }
 
+  /**
+   * Calling the internal API of the node
+   * @param NodeParameters
+   * @param privateKey
+   * @param http
+   * @returns
+   */
+  async sendNodeApi({ chainId, nodeId, path, method, headers, body }: NodeParameters, privateKey: string, http: Http) {
+    const endpoint = '/api';
+    const input: any = {
+      path: path,
+      method: method,
+      headers: headers || [],
+      body: body,
+    };
+    return this.sendNodeTelegram({ chainId, nodeId, endpoint, input }, privateKey, http);
+  }
+
+  /**
+   * Query the "IDL" of the node
+   * @param NodeParameters
+   * @param privateKey
+   * @param http
+   * @returns
+   */
+  async sendNodeIdl({ chainId, nodeId }: NodeParameters, privateKey: string, http: Http) {
+    const endpoint = '/idl';
+    return this.sendNodeTelegram({ chainId, nodeId, endpoint }, privateKey, http);
+  }
+
+  /**
+   * Query the "Info" of the node
+   * @param NodeParameters
+   * @param privateKey
+   * @param http
+   * @returns
+   */
+  async sendNodeInfo({ chainId, nodeId }: NodeParameters, privateKey: string, http: Http) {
+    const endpoint = '/info';
+    return this.sendNodeTelegram({ chainId, nodeId, endpoint }, privateKey, http);
+  }
+
+  /**
+   * Calling the "echo" of the node
+   * @param NodeParameters
+   * @param privateKey
+   * @param http
+   * @returns
+   */
+  async sendNodeEcho({ chainId, nodeId, body }: NodeParameters, privateKey: string, http: Http) {
+    const endpoint = '/echo';
+    const input = body;
+    return this.sendNodeTelegram({ chainId, nodeId, endpoint, input }, privateKey, http);
+  }
+
+  /**
+   * The base function for communicating with the node
+   * @param TelegramParameters
+   * @param privateKey
+   * @param http
+   * @returns
+   */
+  async sendNodeTelegram({ chainId, nodeId, endpoint, input }: TelegramParameters, privateKey: string, http: Http) {
+    const nonceResp = await this.getTelegramCount(privateKey, http);
+    const nonce = nonceResp.data;
+    if (!nonce) {
+      return { _result: 1, _desc: 'nonce is none' };
+    }
+    const to = '0x0000000000000000000000000000000000003001';
+    const data = {
+      peerId: nodeId,
+      endpoint: endpoint,
+      Input: input === void 0 ? '' : input,
+    };
+    return this.sendRawTelegram({ chainId, to, nonce, data }, privateKey, http);
+  }
+
+  /**
+   * Send to EMC legacy transaction
+   * @param RawTelegramParameters
+   * @param privateKey
+   * @param http
+   * @returns
+   */
+  async sendRawTelegram(
+    { chainId, to, nonce, data }: RawTelegramParameters,
+    privateKey: string,
+    http: Http
+  ): Promise<RawTelegramResponse> {
+    const dataStr = typeof data === 'string' ? data : JSON.stringify(data);
+    if (this.debug) {
+      console.info(`send raw telegram pre data--->\n${dataStr}`);
+    }
+    const transaction = new LegacyTransaction({
+      nonce: nonce,
+      gasPrice: '0x0',
+      gasLimit: '0x0',
+      to: to,
+      value: '0x0',
+      data: Buffer.from(dataStr, 'utf-8'),
+      chainId: chainId,
+    });
+    const signed = transaction.sign(hexToBuffer(privateKey));
+    if (this.debug) {
+      console.info(`send raw telegram signed to json--->\n${JSON.stringify(signed.toJSON())}`);
+    }
+    const serialized = signed.serialize();
+    const serializedHex = addHexPrefix(serialized.toString('hex'));
+    const teleResponse = await http.postJSON({
+      data: this._formatRawParams({ params: [serializedHex], id: 1, method: 'edge_sendRawTelegram' }),
+    });
+    const resp = teleResponse?.data;
+    if (!resp) {
+      return { _result: 1, _desc: 'network error' };
+    }
+    if (resp.error) {
+      const error = resp.error;
+      return { _result: 1, _desc: `[${error.code}] ${error.message}` };
+    }
+    return { _result: 0, data: resp };
+  }
+
+  /**
+   * Query nonce with private key
+   * @param hash
+   * @param http
+   * @returns
+   */
   async getTelegramCount(privateKey: string, http: Http) {
-    const address = addressWith(privateKey);
+    const publicKey = addressWith(privateKey);
     const nonceResponse = await http.postJSON({
-      data: this._formatRawParams({ params: [address], id: 1, method: 'edge_getTelegramCount' }),
+      data: this._formatRawParams({ params: [publicKey], id: 1, method: 'edge_getTelegramCount' }),
     });
     const nonce = nonceResponse.data?.result;
     if (!nonce) {
@@ -218,7 +360,25 @@ export class RTC {
   }
 
   /**
-   * query
+   * Query nonce with public key
+   * @param hash
+   * @param http
+   * @returns
+   */
+  async getTelegramCountWithPublicKey(publicKey: string, http: Http) {
+    const nonceResponse = await http.postJSON({
+      data: this._formatRawParams({ params: [publicKey], id: 1, method: 'edge_getTelegramCount' }),
+    });
+    const nonce = nonceResponse.data?.result;
+    if (!nonce) {
+      return { _result: 1, _desc: 'edge_getTelegramCount: nonce is none' };
+    } else {
+      return { _result: 0, data: nonce };
+    }
+  }
+
+  /**
+   * Query telegram receipt
    * @param hash
    * @param http
    * @returns

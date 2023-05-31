@@ -1,6 +1,6 @@
 # @edgematrixjs/rtc
 
-This project is built on top of the edgematrixjs-packages and provides commonly used APIs such as "Send Message," "Create a Subject," and "Subscribe to a Subject."
+This project is built on top of the edgematrixjs-packages and provides commonly used APIs such as "Send Node [Methods]", "Send Message", "Create a Subject", and "Subscribe to a Subject."
 
 It uses "@edgematrixjs/tx" for encoding and signing communication data.
 
@@ -24,6 +24,32 @@ For WebSocket communication, it relies on "@edgematrixjs/socket." You can also u
 ```
 
 ## Example
+
+#### Send Node Api
+
+```typescript
+import { Http } from '@edgematrixjs/http';
+import { RTC } from '@edgematrixjs/rtc';
+const emHttp = new Http({ baseURL: httpsUrl });
+const rtc = new RTC();
+const path = '/sdapi/v1/txt2img';
+const method = 'POST';
+const headers: any[] = [];
+const body = { prompt: 'cat', width: 80, height: 80 };
+const { _result, _desc, data } = await rtc.sendNodeApi(
+  { chainId, nodeId, path, method, headers, body },
+  privateKey,
+  emHttp
+);
+if (_result !== 0) {
+  throw new Error(_desc);
+}
+//the formatted implementing follow "test/node.spec.tx"
+const newData = formatted(data);
+const insideResponse = newData.result?.response;
+const images = insideResponse?.images || [];
+st.equal(images.length, 1, `send node api success`);
+```
 
 #### Create Subject
 
@@ -153,27 +179,42 @@ Sends a message using HTTP.
   - http: The Http object for making HTTP requests.
 - Returns: A promise that resolves with the response containing the result of the message sending.
 
-### Test Result
+#### `sendNodeApi({ chainId, nodeId, path, method, headers, body }: NodeParameters, privateKey: string, http: Http): Promise<RawTelegramResponse>`
 
-```
-# rtc
-# query telegram count
-ok 1 query telegram count is 0x26
-# create subject
-ok 2 create subject is 0xe8ee349147655b2a6d74148dc5b1c6e1b042d256655f6f0f829336cccab170c3
-# query telegram receipt
-ok 3 query subject receipt have correct
-# subscribe
-igonre message, because [event.data.params] is empty! {"jsonrpc":"2.0","id":1,"result":"f88a789b-6352-4e8e-bf19-236d24090dfe"}
-received [subscribe message] in subject [0xe8ee349147655b2a6d74148dc5b1c6e1b042d256655f6f0f829336cccab170c3], from is [0x34A582824d4232480715d668771EE7Ab37A17a91], to is [0x0000000000000000000000000000000000000000], message is [subject]
-ok 4 subscribe have correct
-# send message
-ok 5 send message have correct
-received [ordinary message] in subject [0xe8ee349147655b2a6d74148dc5b1c6e1b042d256655f6f0f829336cccab170c3], from is [0x34A582824d4232480715d668771EE7Ab37A17a91], to is [0x0000000000000000000000000000000000000000], message is [test send message]
+Calling the internal API of the node
 
-1..5
-# tests 5
-# pass  5
+- Parameters:
+  - NodeParameters: chainId:number, nodeId:number, path:'string', method:'string', headers:[], body,
+  - privateKey: The private key used for signing the transaction.
+  - http: The Http object for making HTTP requests.
+- Returns: RawTelegramResponse {\_result,\_desc?,data}
 
-# ok
-```
+#### `sendNodeInfo({ chainId, nodeId}: NodeParameters, privateKey: string, http: Http): Promise<RawTelegramResponse>`
+
+Query the "Info" of the node
+
+- Parameters:
+  - NodeParameters: chainId:number, nodeId:number
+  - privateKey: The private key used for signing the transaction.
+  - http: The Http object for making HTTP requests.
+- Returns: RawTelegramResponse {\_result,\_desc?,data}
+
+#### `sendNodeIdl({ chainId, nodeId }: NodeParameters, privateKey: string, http: Http): Promise<RawTelegramResponse>`
+
+Query the "IDL" of the node
+
+- Parameters:
+  - NodeParameters: chainId:number, nodeId:number
+  - privateKey: The private key used for signing the transaction.
+  - http: The Http object for making HTTP requests.
+- Returns: RawTelegramResponse {\_result,\_desc?,data}
+
+#### `sendNodeEcho({ chainId, nodeId, body }: NodeParameters, privateKey: string, http: Http): Promise<RawTelegramResponse>`
+
+Calling the "echo" of the node
+
+- Parameters:
+  - NodeParameters: chainId:number, nodeId:number, body:string,
+  - privateKey: The private key used for signing the transaction.
+  - http: The Http object for making HTTP requests.
+- Returns: RawTelegramResponse {\_result,\_desc?,data}
